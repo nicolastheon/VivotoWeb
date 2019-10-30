@@ -60,7 +60,7 @@
 <script>
 export default {
   data: () => ({
-    url: 'http://localhost:4000',
+    url: '',
     valid: false,
     title: '',
     content: '',
@@ -80,21 +80,24 @@ export default {
         this.connection = true
         this.todoList = answer.data.todoList
       }
+      console.log(answer.data.message)
     },
 
     async newLog () {
-      await this.axios.post(this.url + '/api/newLog', {
+      const answer = await this.axios.post(this.url + '/api/newLog', {
         login: this.id,
         password: this.password
       })
+      console.log(answer.data.message)
     },
 
     async refreshTodo () {
-      await this.axios.post(this.url + '/api/refreshTodo', {
+      const answer = await this.axios.post(this.url + '/api/refreshTodo', {
         login: this.id,
         password: this.password,
         todoList: this.todoList
       })
+      console.log(answer.data.message)
     },
 
     async logout () {
