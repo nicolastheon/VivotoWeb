@@ -1,142 +1,129 @@
 <template>
   <v-container>
-    <v-layout
-      text-center
-      wrap
-    >
-      <v-flex xs12>
-        <v-img
-          :src="require('../assets/logo.svg')"
-          class="my-3"
-          contain
-          height="200"
-        ></v-img>
-      </v-flex>
 
-      <v-flex mb-4>
-        <h1 class="display-2 font-weight-bold mb-3">
-          Welcome to Vuetify
-        </h1>
-        <p class="subheading font-weight-regular">
-          For help and collaboration with other Vuetify developers,
-          <br>please join our online
-          <a href="https://community.vuetifyjs.com" target="_blank">Discord Community</a>
-        </p>
-      </v-flex>
+    <v-container v-show="connection === false">
+      <v-text-field v-model="id" label="Id"></v-text-field>
+      <v-text-field v-model="password" label="Password" ></v-text-field>
+      <v-btn v-on:click="log">Connexion</v-btn>
+      <v-btn v-on:click="newLog">New login</v-btn>
+     </v-container>
 
-      <v-flex
-        mb-5
-        xs12
-      >
-        <h2 class="headline font-weight-bold mb-3">What's next?</h2>
+  <v-container v-show="connection">
+    <v-layout text-center wrap>
+      <v-form v-model="valid">
+        <v-container>
+          <v-row>
 
-        <v-layout justify-center>
-          <a
-            v-for="(next, i) in whatsNext"
-            :key="i"
-            :href="next.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ next.text }}
-          </a>
-        </v-layout>
-      </v-flex>
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-model="title"
+                label="Title"
+                required
+              ></v-text-field>
+            </v-col>
 
-      <v-flex
-        xs12
-        mb-5
-      >
-        <h2 class="headline font-weight-bold mb-3">Important Links</h2>
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-model="content"
+                label="Content"
+                required
+              ></v-text-field>
+            </v-col>
 
-        <v-layout justify-center>
-          <a
-            v-for="(link, i) in importantLinks"
-            :key="i"
-            :href="link.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ link.text }}
-          </a>
-        </v-layout>
-      </v-flex>
+            <v-col cols="12" md="4">
+              <v-btn v-on:click="addTodo">Add</v-btn>
+              <v-btn v-on:click="seen">Del</v-btn>
+            </v-col>
 
-      <v-flex
-        xs12
-        mb-5
-      >
-        <h2 class="headline font-weight-bold mb-3">Ecosystem</h2>
+            <v-col cols="12" md="4">
+            <v-btn v-on:click="logout">Logout</v-btn>
+          </v-col>
 
-        <v-layout justify-center>
-          <a
-            v-for="(eco, i) in ecosystem"
-            :key="i"
-            :href="eco.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ eco.text }}
-          </a>
-        </v-layout>
-      </v-flex>
+            <v-col cols="12" md="4">
+              <ol>
+                  <li v-for="(item, i) in todoList" :key="i">
+                    {{ item.title }} : {{item.content}}
+                    <v-btn v-show="seen_button" v-on:click="delTodo(i)">Del</v-btn>
+                  </li>
+              </ol>
+            </v-col>
+          </v-row>
+
+        </v-container>
+      </v-form>
     </v-layout>
+  </v-container>
+
   </v-container>
 </template>
 
 <script>
 export default {
   data: () => ({
-    ecosystem: [
-      {
-        text: 'vuetify-loader',
-        href: 'https://github.com/vuetifyjs/vuetify-loader'
-      },
-      {
-        text: 'github',
-        href: 'https://github.com/vuetifyjs/vuetify'
-      },
-      {
-        text: 'awesome-vuetify',
-        href: 'https://github.com/vuetifyjs/awesome-vuetify'
+    url: '',
+    valid: false,
+    title: '',
+    content: '',
+    seen_button: false,
+    id: '',
+    password: '',
+    todoList: [{ title: '', content: '' }],
+    connection: false
+  }),
+  methods: {
+    async log () {
+      const answer = await this.axios.post(this.url + '/api/log', {
+        login: this.id,
+        password: this.password
+      })
+      if (answer.data.message === 'connected') {
+        this.connection = true
+        this.todoList = answer.data.todoList
       }
-    ],
-    importantLinks: [
-      {
-        text: 'Documentation',
-        href: 'https://vuetifyjs.com'
-      },
-      {
-        text: 'Chat',
-        href: 'https://community.vuetifyjs.com'
-      },
-      {
-        text: 'Made with Vuetify',
-        href: 'https://madewithvuejs.com/vuetify'
-      },
-      {
-        text: 'Twitter',
-        href: 'https://twitter.com/vuetifyjs'
-      },
-      {
-        text: 'Articles',
-        href: 'https://medium.com/vuetify'
-      }
-    ],
-    whatsNext: [
-      {
-        text: 'Explore components',
-        href: 'https://vuetifyjs.com/components/api-explorer'
-      },
-      {
-        text: 'Select a layout',
-        href: 'https://vuetifyjs.com/layout/pre-defined'
-      },
-      {
-        text: 'Frequently Asked Questions',
-        href: 'https://vuetifyjs.com/getting-started/frequently-asked-questions'
-      }
-    ]
-  })
+      console.log(answer.data.message)
+    },
+
+    async newLog () {
+      const answer = await this.axios.post(this.url + '/api/newLog', {
+        login: this.id,
+        password: this.password
+      })
+      console.log(answer.data.message)
+    },
+
+    async refreshTodo () {
+      const answer = await this.axios.post(this.url + '/api/refreshTodo', {
+        login: this.id,
+        password: this.password,
+        todoList: this.todoList
+      })
+      console.log(answer.data.message)
+    },
+
+    async logout () {
+      await this.axios.post(this.url + '/api/logout', {
+      })
+      this.connection = false
+    },
+
+    addTodo () {
+      this.todoList.push({
+        title: this.title,
+        content: this.content
+      })
+      this.seen_button = false
+      this.refreshTodo()
+    },
+
+    delTodo (i) {
+      this.todoList.splice(i, 1)
+      this.seen_button = false
+      this.refreshTodo()
+    },
+
+    seen () {
+      this.seen_button = true
+    }
+  }
 }
 </script>
